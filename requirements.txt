@@ -1,4 +1,5 @@
 Flask
 numpy
+python-dotenv
 opencv-python
 ultralytics
