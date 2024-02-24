@@ -27,9 +27,9 @@ app.permanent_session_lifetime = timedelta(days=7)  # 1週間保存
 
 
 # モデル初期化
-dtect_model = YOLO('models/yolov8x.pt')
-seg_model = YOLO('models/yolov8x-seg.pt')
-cls_model = YOLO('models/yolov8x-cls.pt')
+dtect_model = YOLO('models/yolov8n.pt')
+seg_model = YOLO('models/yolov8n-seg.pt')
+cls_model = YOLO('models/yolov8n-cls.pt')
 
 # home画面
 @app.route('/', methods=['GET'])
@@ -166,5 +166,6 @@ def dated_url_for(endpoint, **values):
 
 
 if __name__ == '__main__':
+    # app.run(debug=True)
     port = int(os.environ.get('PORT', 8080))
     app.run(host ='0.0.0.0',port = port)
