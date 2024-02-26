@@ -16,6 +16,9 @@ from datetime import timedelta
 # YOLO
 from ultralytics import YOLO
 
+# ガーベジコレクション
+import gc
+
 # 環境変数読み込み
 load_dotenv()
 
@@ -27,13 +30,18 @@ app.permanent_session_lifetime = timedelta(days=7)  # 1週間保存
 
 
 # モデル初期化
-dtect_model = YOLO('models/yolov8n.pt')
-seg_model = YOLO('models/yolov8n-seg.pt')
-cls_model = YOLO('models/yolov8n-cls.pt')
+YOLO('models/yolov8n.pt')
+YOLO('models/yolov8n-seg.pt')
+YOLO('models/yolov8n-cls.pt')
+
+# メモリ対策（モデルダウンロード後オブジェクト削除）
+gc.collect()
 
 # home画面
 @app.route('/', methods=['GET'])
 def home():
+    # メモリ対策
+    gc.collect()
     return render_template('index.html')
 
 # YOLOv検証アプリ
@@ -120,6 +128,9 @@ def image_detect_post():
         for key, val in dic.items():
             dic[key]  =  '{:.8f}'.format(val)
 
+    # # メモリ対策 
+    del img
+    
     # 画像出力
     return render_template('index.html',
                            exit=True,
@@ -129,24 +140,37 @@ def image_detect_post():
                            table_clm=table_clm,
                            table_data=dic )
 
+
 # 物体検知
 def detect_image(img_path, result_dir):
 
-    results = dtect_model(img_path, save=True, exist_ok=True, project=result_dir)
-
+    # モデル初期化
+    model = YOLO('models/yolov8n.pt')
+    results = model(img_path, save=True, exist_ok=True, project=result_dir)
+    del model
+    gc.collect()
+    
     return set_result(results)
 
 # セグメンテーション
 def seg_image(img_path, result_dir):
     
-    results = seg_model(img_path, save=True, exist_ok=True, project=result_dir)
+    # モデル初期化
+    model = YOLO('models/yolov8n-seg.pt')
+    results = model(img_path, save=True, exist_ok=True, project=result_dir)
+    del model
+    gc.collect()
 
     return set_result(results)
 
 # 画像分類
 def cls_image(img_path, result_dir):
     
-    results = cls_model(img_path, save=True, exist_ok=True, project=result_dir)
+    # モデル初期化
+    model = YOLO('models/yolov8n-cls.pt')
+    results = model(img_path, save=True, exist_ok=True, project=result_dir)
+    del model
+    gc.collect()
 
     return set_result2(results)
 
