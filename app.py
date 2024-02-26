@@ -30,25 +30,18 @@ app.permanent_session_lifetime = timedelta(days=7)  # 1週間保存
 
 
 # モデル初期化
-dtect_model = YOLO('models/yolov8n.pt')
-seg_model = YOLO('models/yolov8n-seg.pt')
-cls_model = YOLO('models/yolov8n-cls.pt')
+YOLO('models/yolov8n.pt')
+YOLO('models/yolov8n-seg.pt')
+YOLO('models/yolov8n-cls.pt')
 
 # メモリ対策（モデルダウンロード後オブジェクト削除）
-del dtect_model
-del seg_model
-del cls_model
 gc.collect()
-
-# モデル名だけ再定義
-dtect_model = None
-seg_model = None
-cls_model = None
-
 
 # home画面
 @app.route('/', methods=['GET'])
 def home():
+    # メモリ対策
+    gc.collect()
     return render_template('index.html')
 
 # YOLOv検証アプリ
@@ -114,48 +107,29 @@ def image_detect_post():
         title = '物体検知'
         table_clm = '検知数'
 
-        # モデル初期化
-        dtect_model = YOLO('models/yolov8n.pt')
-
         # 物体検知
-        dic = detect_image(dtect_model, img_path, result_dir)
-
-        # メモリ対策 モデルオブジェクト削除
-        del dtect_model
+        dic = detect_image(img_path, result_dir)
 
     elif(input_model == '2'): 
         title = 'セグメンテーション'
         table_clm = '検知数'
 
-        # モデル初期化
-        seg_model = YOLO('models/yolov8n-seg.pt')
-
         # セグメンテーション
-        dic = seg_image(seg_model, img_path, result_dir) 
-
-        # メモリ対策 モデルオブジェクト削除
-        del seg_model
+        dic = seg_image(img_path, result_dir) 
 
     else:
         title = '画像分類'
         table_clm = '精度'
 
-        # モデル初期化
-        cls_model = YOLO('models/yolov8n-cls.pt')
-
         # 画像分類
-        dic = cls_image(cls_model, img_path, result_dir)
-
-        # メモリ対策 モデルオブジェクト削除
-        del cls_model
+        dic = cls_image(img_path, result_dir)
 
         # 精度フォーマット文字列変換
         for key, val in dic.items():
             dic[key]  =  '{:.8f}'.format(val)
 
-    # メモリ対策 ガーベジコレクション実行
+    # # メモリ対策 
     del img
-    gc.collect()
     
     # 画像出力
     return render_template('index.html',
@@ -166,24 +140,37 @@ def image_detect_post():
                            table_clm=table_clm,
                            table_data=dic )
 
+
 # 物体検知
-def detect_image(model, img_path, result_dir):
+def detect_image(img_path, result_dir):
 
+    # モデル初期化
+    model = YOLO('models/yolov8n.pt')
     results = model(img_path, save=True, exist_ok=True, project=result_dir)
-
+    del model
+    gc.collect()
+    
     return set_result(results)
 
 # セグメンテーション
-def seg_image(model, img_path, result_dir):
+def seg_image(img_path, result_dir):
     
+    # モデル初期化
+    model = YOLO('models/yolov8n-seg.pt')
     results = model(img_path, save=True, exist_ok=True, project=result_dir)
+    del model
+    gc.collect()
 
     return set_result(results)
 
 # 画像分類
-def cls_image(model, img_path, result_dir):
+def cls_image(img_path, result_dir):
     
+    # モデル初期化
+    model = YOLO('models/yolov8n-cls.pt')
     results = model(img_path, save=True, exist_ok=True, project=result_dir)
+    del model
+    gc.collect()
 
     return set_result2(results)
 
