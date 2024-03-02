@@ -24,15 +24,11 @@
     <div class="container" style="max-width: 800px ;">
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <ul>
             {% for message in messages %}
-            <li><span style="color: #B22222;">
-                    <h3>{{ message }}
-                </span>
-                <h3></span>
-            </li>
+            <span style="color: #B22222;">
+                <h3>{{ message }}</h3>
+            </span>
             {% endfor %}
-        </ul>
         {% endif %}
         {% endwith %}
 
@@ -126,7 +122,7 @@
         </div>
     </main>
     <footer class="bg-secondary">
-        <p>本サイトは学習用のサイトです</p>
+        <p>本サイトは学習用です</p>
     </footer>
 </div>
 </body>
