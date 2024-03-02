@@ -130,7 +130,8 @@ def image_detect_post():
 
     # # メモリ対策 
     del img
-    
+    gc.collect()
+
     # 画像出力
     return render_template('index.html',
                            exit=True,
@@ -148,7 +149,6 @@ def detect_image(img_path, result_dir):
     model = YOLO('models/yolov8n.pt')
     results = model(img_path, save=True, exist_ok=True, project=result_dir)
     del model
-    gc.collect()
     
     return set_result(results)
 
@@ -159,7 +159,6 @@ def seg_image(img_path, result_dir):
     model = YOLO('models/yolov8n-seg.pt')
     results = model(img_path, save=True, exist_ok=True, project=result_dir)
     del model
-    gc.collect()
 
     return set_result(results)
 
@@ -170,7 +169,6 @@ def cls_image(img_path, result_dir):
     model = YOLO('models/yolov8n-cls.pt')
     results = model(img_path, save=True, exist_ok=True, project=result_dir)
     del model
-    gc.collect()
 
     return set_result2(results)
 
@@ -190,6 +188,6 @@ def dated_url_for(endpoint, **values):
 
 
 if __name__ == '__main__':
-    # app.run(debug=True)
+    #app.run(debug=True)
     port = int(os.environ.get('PORT', 8080))
     app.run(host ='0.0.0.0',port = port)
